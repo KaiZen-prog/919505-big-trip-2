@@ -250,7 +250,7 @@ export default class PointFormView extends AbstractStatefulView {
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#pointDestinationChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#pointPriceChangeHandler);
     this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#pointOfferChangeHandler);
-    this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitHandler);
+    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
 
     this.#setDatepicker();
   }
@@ -278,9 +278,13 @@ export default class PointFormView extends AbstractStatefulView {
     const value = evt.target.value;
     const newDestination = this.#destinations.find((destination) => destination.name === value);
 
-    if (newDestination) {
-      this.updateElement({destination: newDestination.id});
-    }
+    this._setState({destination: newDestination ? newDestination.id : this._state.destination});
+
+    this.element.addEventListener('click', (innerEvent) => {
+      if (innerEvent.target.type !== 'submit' && this.element.parentElement) {
+        this.updateElement(this._state);
+      }
+    }, {once: true});
   };
 
   #pointPriceChangeHandler = (evt) => {
@@ -298,7 +302,6 @@ export default class PointFormView extends AbstractStatefulView {
 
     this.updateElement({offers: currentOffers});
   };
-
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
